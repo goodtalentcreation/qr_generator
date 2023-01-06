@@ -1,0 +1,114 @@
+<html>
+
+<head>
+
+<style>
+#qrcode {
+  width:160px;
+  height:160px;
+  margin-top:15px;
+}
+.line-row {
+    list-style: none;
+    margin: 10px;
+}
+.line-row li {
+    padding: 10px;
+    display: inline-block;
+    border-radius: 0%;
+    margin: 10px;
+    outline: 1px solid #000;
+}
+.line-row p {
+    display: inline-block;
+}
+.button {
+  border-radius: 4px;
+  padding: 10px;
+}
+</style>
+</head>
+
+<body onload="onLoad()">
+
+<header>
+  <div style="display: inline-block;">
+    <textarea id="text" type="text" placeholder="input qr code contents here separate by lines" rows="10" style="width:80%" mutli-line="yes" ></textarea>
+    <div>
+      <input id="prefix" type="button" value="FTD Prefix" class="button"/>
+      <input id="generate" type="button" value="generate" class="button"/>
+    </div>
+  </div>
+</header>
+<main>
+  <div style="display: inline-block;">
+    <ul class="line-row" id="outputs"></ul>
+  </div>
+</main> 
+</body>
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> -->
+<script src="jquery.min.js"></script>
+<!-- https://github.com/davidshimjs/qrcodejs -->
+<script src="qrcode.min.js"></script>
+
+<script type="text/javascript">
+function generate () {
+  var elText = document.getElementById("text");
+
+  $("#outputs").empty();
+
+  var outputs = document.getElementById("outputs");
+  var lines = elText.value.split("\n").filter(line => line.length > 0);
+  localStorage.setItem("text", elText.value)
+  
+  console.log(outputs);
+  
+  lines.forEach(function (line, idx) {
+    var li = document.createElement("LI");
+
+    var div = document.createElement("DIV");
+    div.id = "qr"+idx;
+    
+    var p = document.createElement("p");
+    p.innerHTML = line;
+    li.appendChild(p);
+    
+    li.appendChild(div);
+    outputs.appendChild(li);
+    new QRCode(div, line);
+  });
+	
+}
+
+function onLoad() {
+    
+    var text = localStorage.getItem("text");
+    var elText = document.getElementById("text");
+    
+    console.log(text);
+    console.log(elText);
+    elText.value = text;
+    
+    generate();
+}
+
+$("#generate").
+	on("click", function (e) {
+			generate();
+	});
+
+$("#prefix").
+	on("click", function (e) {
+    const re = /^[A-Z0-9]{17}$/;
+    var elText = document.getElementById("text");
+    var lines = elText.value.split("\n")
+    var results = [];
+    lines.forEach(function (line, idx) {
+      results.push(line.match(re) ? "https://c.ftd.world/" + line : line);
+    });
+    elText.value = results.join("\n");
+	});
+	
+</script>
+</html>
